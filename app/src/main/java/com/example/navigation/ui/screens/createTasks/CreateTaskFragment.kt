@@ -1,4 +1,4 @@
-package com.example.navigation
+package com.example.navigation.ui.screens.createTasks
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -6,17 +6,18 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.navigation.fragment.findNavController
-import com.example.navigation.databinding.FragmentFirstBinding
+import com.example.navigation.R
+import com.example.navigation.databinding.FragmentCreateTaskBinding
 
-class FirstFragment : Fragment() {
+class CreateTaskFragment : Fragment() {
 
-    private lateinit var binding: FragmentFirstBinding
+    private lateinit var binding: FragmentCreateTaskBinding
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = FragmentFirstBinding.inflate(layoutInflater)
+        binding = FragmentCreateTaskBinding.inflate(layoutInflater)
         return binding.root
     }
 
