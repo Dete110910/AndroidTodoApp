@@ -5,4 +5,8 @@
     <string name="go_to_first_fragment">Go to First Fragment</string>
     <string name="go_to_second_fragment">Go to Second Fragment</string>
     <string name="go_to_third_fragment">Go to Third Fragment</string>
+    <string name="inbox">Inbox</string>
+    <string name="completed">Completed</string>
+    <string name="description">Description</string>
+    <string name="hint_task_title">Task Title</string>
 </resources>
