@@ -28,7 +28,7 @@
                 android:layout_margin="5dp"
                 android:color="@color/black"
                 android:text="@string/inbox"
-                android:textSize="22sp"
+                android:textSize="25sp"
                 android:textStyle="bold" />
 
         </LinearLayout>
@@ -38,6 +38,7 @@
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:layout_marginHorizontal="5dp"
+            android:hint="@string/insert_title_task"
             android:inputType="text"
             android:background="@color/light_gray"
             app:layout_constraintTop_toBottomOf="@+id/ll_header" />

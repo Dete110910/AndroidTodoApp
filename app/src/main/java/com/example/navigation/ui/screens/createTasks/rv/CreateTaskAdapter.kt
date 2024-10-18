@@ -8,15 +8,12 @@ import com.example.navigation.data.models.Task
 import com.example.navigation.databinding.TaskViewBinding
 
 class CreateTaskAdapter(
-    private val entryTaskList : List<Task>,
+    entryTaskList : List<Task>,
     private val onCheckClickListener: (id: Int) -> Unit,
+    private val onTaskDetailClickListener: (id: Int) -> Unit
 ) : RecyclerView.Adapter<CreateTaskViewHolder>() {
 
-    var taskList : List<Task> = entryTaskList
-
-    fun updateTaskList(taskList: List<Task>){
-        this.taskList = taskList
-    }
+    private var taskList : List<Task> = entryTaskList
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CreateTaskViewHolder {
         val binding = TaskViewBinding.inflate(
@@ -24,10 +21,10 @@ class CreateTaskAdapter(
             parent,
             false
         )
-        Log.d("TEST", "Lista al inicio: ${taskList}")
         return CreateTaskViewHolder(
             binding = binding,
-            onCheckClickListener = onCheckClickListener
+            onCheckClickListener = onCheckClickListener,
+            onTaskDetailClickListener = onTaskDetailClickListener
         )
     }
 
@@ -36,4 +33,8 @@ class CreateTaskAdapter(
     }
 
     override fun getItemCount(): Int = taskList.size
+
+    fun updateTaskList(taskList: List<Task>) {
+        this.taskList = taskList
+    }
 }

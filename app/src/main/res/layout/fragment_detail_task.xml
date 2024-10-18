@@ -13,6 +13,7 @@
 
         <LinearLayout
             android:id="@+id/ll_header"
+
             android:layout_width="match_parent"
             android:layout_height="45dp"
             android:background="@color/light_green"
@@ -20,15 +21,26 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
+            <ImageButton
+                android:id="@+id/btn_back"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:layout_marginHorizontal="3dp"
+                android:layout_marginVertical="5dp"
+                android:background="@color/transparent"
+                android:contentDescription="@string/back_button"
+                android:scaleType="centerCrop"
+                android:src="@drawable/arrow_back" />
 
             <TextView
+                android:id="@+id/tv_main_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="5dp"
                 android:color="@color/black"
-                android:textSize="22sp"
-                android:textStyle="bold"
-                tools:text="Ajustar texto y acción" />
+                android:text="@string/back"
+                android:textSize="25sp"
+                android:textStyle="bold" />
 
         </LinearLayout>
 
@@ -36,23 +48,34 @@
             android:id="@+id/tv_task_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="5dp"
+            android:layout_marginHorizontal="5dp"
+            android:layout_marginVertical="2dp"
             android:autofillHints="name"
             android:background="@android:color/transparent"
             android:color="@color/black"
             android:hint="@string/hint_task_title"
-            android:textSize="25sp"
+            android:textSize="27sp"
             android:textStyle="bold"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/ll_header" />
+            app:layout_constraintTop_toBottomOf="@id/cb_is_completed" />
 
         <CheckBox
             android:id="@+id/cb_is_completed"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:layout_constraintBottom_toBottomOf="@+id/tv_task_title"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@id/tv_task_title" />
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/ll_header" />
+
+        <TextView
+            android:id="@+id/tv_date_time"
+            android:layout_width="wrap_content"
+            app:layout_constraintTop_toTopOf="@+id/cb_is_completed"
+            app:layout_constraintBottom_toBottomOf="@+id/cb_is_completed"
+            android:layout_marginStart="3dp"
+            android:text="@string/date_amp_time"
+            android:textSize="18sp"
+            app:layout_constraintStart_toEndOf="@+id/cb_is_completed"
+            android:layout_height="wrap_content" />
 
         <EditText
             android:id="@+id/et_description_task"
@@ -60,10 +83,11 @@
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="3dp"
             android:layout_marginVertical="5dp"
-            android:autofillHints=""
+            android:gravity="top|start"
             android:hint="@string/description"
-            android:background="@drawable/bottom_line_et"
-            android:inputType="text"
+            android:inputType="textMultiLine"
+            android:minLines="3"
+            android:scrollbars="vertical"
             app:layout_constraintTop_toBottomOf="@+id/tv_task_title" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 

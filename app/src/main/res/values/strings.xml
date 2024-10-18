@@ -9,4 +9,8 @@
     <string name="completed">Completed</string>
     <string name="description">Description</string>
     <string name="hint_task_title">Task Title</string>
+    <string name="back_button">go_back</string>
+    <string name="back">Back</string>
+    <string name="date_amp_time"><![CDATA[Date & time]]></string>
+    <string name="insert_title_task">Insert Title Task</string>
 </resources>

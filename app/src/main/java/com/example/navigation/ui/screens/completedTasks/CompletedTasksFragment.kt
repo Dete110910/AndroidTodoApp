@@ -30,7 +30,6 @@ class CompletedTasksFragment : Fragment() {
     ): View {
         binding = FragmentCompletedTaskBinding.inflate(layoutInflater)
         initRv()
-        initUiStateLifecycle()
         return binding.root
     }
 
@@ -39,34 +38,41 @@ class CompletedTasksFragment : Fragment() {
             taskViewModel.uiState.value.getCompleted(),
             onCheckClickListener = { idTask ->
                 checkTask(idTask)
+            },
+            onTaskDetailClickListener = { idTask ->
+                launchActivityDetail(idTask)
             }
         )
-        Log.d("TEST--", "Fragment")
         binding.rvTasks.apply {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = rvTaskAdapter
         }
+
+        binding.btnBack.setOnClickListener{
+            findNavController().popBackStack()
+        }
     }
 
-    private fun initUiStateLifecycle() {
-        Log.d("TEST", "Falta implementar")
+    @SuppressLint("NotifyDataSetChanged")
+    private fun updateUiState(){
+        lifecycleScope.launch {
+            taskViewModel.uiState.collect{ uiState ->
+                if(uiState.taskList.isNotEmpty()){
+                    rvTaskAdapter.updateTaskList(uiState.getCompleted())
+                    rvTaskAdapter.notifyDataSetChanged()
+                }
+            }
+        }
     }
 
     @SuppressLint("NotifyDataSetChanged")
     private fun checkTask(id: Int) {
         taskViewModel.taskList.find { it.id == id }!!.isChecked = false
-        lifecycleScope.launch {
-            taskViewModel.uiState.collect{ uiState ->
-                if(uiState.taskList.isNotEmpty()){
-                    rvTaskAdapter.taskList = uiState.getCompleted()
-                    rvTaskAdapter.notifyDataSetChanged()
-                }
-            }
-        }
+        updateUiState()
+    }
 
-        //Log.d("TEST", "Aquí 2: ${a}")
-
-        //Cuando entre aquí modifico modifico el viewmodel uistate adapter para pasarle la lista con los completes.
-        //Cuando haga el otro rv, le paso los complete nomás
+    private fun launchActivityDetail(idTask: Int) {
+        taskViewModel.setSelectedTask(idTask)
+        findNavController().navigate(R.id.action_secondFragment_to_thirdFragment)
     }
 }

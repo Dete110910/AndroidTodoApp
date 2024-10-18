@@ -3,10 +3,12 @@ package com.example.navigation.ui.screens.createTasks
 import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
+import android.view.KeyEvent
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.EditorInfo
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
@@ -31,8 +33,27 @@ class CreateTaskFragment : Fragment() {
     ): View {
         binding = FragmentCreateTaskBinding.inflate(layoutInflater)
         initRv()
-        initUiStateLifecycle()
         return binding.root
+    }
+
+    override fun onResume() {
+        super.onResume()
+        Log.d("TEST", taskViewModel.taskList.toString())
+        updateUiState()
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    private fun updateUiState() {
+        lifecycleScope.launch {
+            taskViewModel.uiState.collect { uiState ->
+                Log.d("TEST", "CASI Actualicé la vista ${uiState.taskList}")
+                if (uiState.taskList.isNotEmpty()) {
+                    Log.d("TEST", "Actualicé la vista")
+                    rvTaskAdapter.updateTaskList(uiState.getPending())
+                    rvTaskAdapter.notifyDataSetChanged()
+                }
+            }
+        }
     }
 
     private fun initRv() {
@@ -40,36 +61,26 @@ class CreateTaskFragment : Fragment() {
             taskViewModel.taskList,
             onCheckClickListener = { idTask ->
                 checkTask(idTask)
+            },
+            onTaskDetailClickListener = { idTask ->
+                launchActivityDetail(idTask)
             }
         )
-        Log.d("TEST--", "Fragment")
         binding.rvTasks.apply {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = rvTaskAdapter
         }
     }
 
-    private fun initUiStateLifecycle() {
-        Log.d("TEST", "Falta implementar")
-    }
-
-    @SuppressLint("NotifyDataSetChanged")
     private fun checkTask(id: Int) {
         taskViewModel.taskList.find { it.id == id }!!.isChecked = true
         taskViewModel.setPendingTasks(taskList = taskViewModel.taskList)
-        lifecycleScope.launch {
-            taskViewModel.uiState.collect{ uiState ->
-                if(uiState.taskList.isNotEmpty()){
-                    rvTaskAdapter.taskList = uiState.getPending()
-                    rvTaskAdapter.notifyDataSetChanged()
-                }
-            }
-        }
-        //Log.d("TEST", "Aquí: ${taskList}")
-        //Log.d("TEST", "Aquí 2: ${a}")
+        updateUiState()
+    }
 
-        //Cuando entre aquí modifico modifico el viewmodel uistate adapter para pasarle la lista con los completes.
-        //Cuando haga el otro rv, le paso los complete nomás
+    private fun launchActivityDetail(idTask: Int) {
+        taskViewModel.setSelectedTask(idTask)
+        findNavController().navigate(R.id.action_firstFragment_to_thirdFragment)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -77,5 +88,25 @@ class CreateTaskFragment : Fragment() {
         binding.btnCompletedTasks.setOnClickListener {
             findNavController().navigate(R.id.action_firstFragment_to_secondFragment)
         }
+
+        binding.ctvTitleTask.setOnEditorActionListener { _, actionId, event ->
+            if (actionId == EditorInfo.IME_ACTION_NEXT || actionId == EditorInfo.IME_ACTION_DONE) {
+                taskViewModel.addTask(binding.ctvTitleTask.text.toString())
+                cleanField()
+                updateUiState()
+                true
+            } else {
+                false
+            }
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        cleanField()
+    }
+
+    private fun cleanField() {
+        binding.ctvTitleTask.setText("")
     }
 }
