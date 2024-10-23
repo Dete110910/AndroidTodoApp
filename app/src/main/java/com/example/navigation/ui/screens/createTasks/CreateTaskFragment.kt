@@ -2,19 +2,17 @@ package com.example.navigation.ui.screens.createTasks
 
 import android.annotation.SuppressLint
 import android.os.Bundle
-import android.util.Log
-import android.view.KeyEvent
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
+import android.widget.Toast
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.navigation.R
-import com.example.navigation.data.models.Task
 import com.example.navigation.data.viewModel.TaskViewModel
 import com.example.navigation.databinding.FragmentCreateTaskBinding
 import com.example.navigation.ui.screens.createTasks.rv.CreateTaskAdapter
@@ -38,17 +36,43 @@ class CreateTaskFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        Log.d("TEST", taskViewModel.taskList.toString())
-        updateUiState()
+        updateUiTaskList()
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        binding.btnCompletedTasks.setOnClickListener {
+            findNavController().navigate(R.id.action_firstFragment_to_secondFragment)
+        }
+
+        binding.ctvTitleTask.setOnEditorActionListener { _, actionId, event ->
+            if (actionId == EditorInfo.IME_ACTION_NEXT || actionId == EditorInfo.IME_ACTION_DONE) {
+                if (binding.ctvTitleTask.text.toString().trim() != "") {
+                    taskViewModel.addTask(binding.ctvTitleTask.text.toString())
+                    cleanField()
+                    updateUiTaskList()
+                    true
+                } else {
+                    Toast.makeText(context, "No puede dejar el título vacío", Toast.LENGTH_SHORT)
+                        .show()
+                    false
+                }
+            } else {
+                false
+            }
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        cleanField()
     }
 
     @SuppressLint("NotifyDataSetChanged")
-    private fun updateUiState() {
+    private fun updateUiTaskList() {
         lifecycleScope.launch {
             taskViewModel.uiState.collect { uiState ->
-                Log.d("TEST", "CASI Actualicé la vista ${uiState.taskList}")
                 if (uiState.taskList.isNotEmpty()) {
-                    Log.d("TEST", "Actualicé la vista")
                     rvTaskAdapter.updateTaskList(uiState.getPending())
                     rvTaskAdapter.notifyDataSetChanged()
                 }
@@ -63,7 +87,7 @@ class CreateTaskFragment : Fragment() {
                 checkTask(idTask)
             },
             onTaskDetailClickListener = { idTask ->
-                launchActivityDetail(idTask)
+                launchFragmentDetail(idTask)
             }
         )
         binding.rvTasks.apply {
@@ -74,37 +98,15 @@ class CreateTaskFragment : Fragment() {
 
     private fun checkTask(id: Int) {
         taskViewModel.taskList.find { it.id == id }!!.isChecked = true
-        taskViewModel.setPendingTasks(taskList = taskViewModel.taskList)
-        updateUiState()
+        taskViewModel.updateUiState()
+        updateUiTaskList()
     }
 
-    private fun launchActivityDetail(idTask: Int) {
+    private fun launchFragmentDetail(idTask: Int) {
         taskViewModel.setSelectedTask(idTask)
         findNavController().navigate(R.id.action_firstFragment_to_thirdFragment)
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        binding.btnCompletedTasks.setOnClickListener {
-            findNavController().navigate(R.id.action_firstFragment_to_secondFragment)
-        }
-
-        binding.ctvTitleTask.setOnEditorActionListener { _, actionId, event ->
-            if (actionId == EditorInfo.IME_ACTION_NEXT || actionId == EditorInfo.IME_ACTION_DONE) {
-                taskViewModel.addTask(binding.ctvTitleTask.text.toString())
-                cleanField()
-                updateUiState()
-                true
-            } else {
-                false
-            }
-        }
-    }
-
-    override fun onPause() {
-        super.onPause()
-        cleanField()
-    }
 
     private fun cleanField() {
         binding.ctvTitleTask.setText("")

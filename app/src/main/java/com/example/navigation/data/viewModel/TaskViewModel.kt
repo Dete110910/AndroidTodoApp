@@ -1,6 +1,7 @@
 package com.example.navigation.data.viewModel
 
 import android.util.Log
+import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.navigation.data.models.Task
@@ -26,10 +27,6 @@ class TaskViewModel : ViewModel() {
         Task(2, "T2", "DT2", false),
         Task(3, "T3", "DT3", false),
     )
-
-    fun setPendingTasks(taskList: List<Task>) {
-        updateUiState()
-    }
 
     fun updateUiState() {
         viewModelScope.launch {

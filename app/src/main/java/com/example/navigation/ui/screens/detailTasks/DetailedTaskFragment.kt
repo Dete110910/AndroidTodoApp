@@ -35,29 +35,32 @@ class DetailedTaskFragment : Fragment() {
     private fun initView() {
 
         binding.btnBack.setOnClickListener {
-            if(binding.tvTaskTitle.text.toString().trim() != "")
+            if (binding.tvTaskTitle.text.toString().trim() != "")
                 findNavController().popBackStack()
             else
                 Toast.makeText(context, "No puede dejar el título vacío", Toast.LENGTH_SHORT).show()
         }
 
-        binding.cbIsCompleted.setOnClickListener{
-            if(binding.cbIsCompleted.isChecked)
-                binding.tvTaskTitle.paintFlags = binding.tvTaskTitle.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
+        binding.cbIsCompleted.setOnClickListener {
+            if (binding.cbIsCompleted.isChecked)
+                binding.tvTaskTitle.paintFlags =
+                    binding.tvTaskTitle.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
             else
-                binding.tvTaskTitle.paintFlags = binding.tvTaskTitle.paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv()
+                binding.tvTaskTitle.paintFlags =
+                    binding.tvTaskTitle.paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv()
         }
 
         lifecycleScope.launch {
             val task = taskViewModel.getSelectedTask()
-            taskViewModel.uiStateDetail.collect{ uiStateDetail ->
+            taskViewModel.uiStateDetail.collect { uiStateDetail ->
                 with(binding) {
-                   tvTaskTitle.setText(task.title)
+                    tvTaskTitle.setText(task.title)
                     cbIsCompleted.isChecked = task.isChecked
                     etDescriptionTask.setText(task.description)
 
-                    if(task.isChecked){
-                        tvTaskTitle.paintFlags = tvTaskTitle.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
+                    if (task.isChecked) {
+                        tvTaskTitle.paintFlags =
+                            tvTaskTitle.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
                     }
                 }
             }
@@ -67,16 +70,21 @@ class DetailedTaskFragment : Fragment() {
     override fun onPause() {
         super.onPause()
         with(binding) {
-            taskViewModel.taskList.find { it.id == taskViewModel.getSelectedTask().id }?.let { task ->
-                if(tvTaskTitle.text.toString().trim() != ""){
-                    task.title = tvTaskTitle.text.toString()
-                    task.description = etDescriptionTask.text.toString()
-                    task.isChecked = cbIsCompleted.isChecked
-                    taskViewModel.updateUiState()
-                } else {
-                    Toast.makeText(context, "No puede dejar el título vacío", Toast.LENGTH_SHORT).show()
+            taskViewModel.taskList.find { it.id == taskViewModel.getSelectedTask().id }
+                ?.let { task ->
+                    if (tvTaskTitle.text.toString().trim() != "") {
+                        task.title = tvTaskTitle.text.toString()
+                        task.description = etDescriptionTask.text.toString()
+                        task.isChecked = cbIsCompleted.isChecked
+                        taskViewModel.updateUiState()
+                    } else {
+                        Toast.makeText(
+                            context,
+                            "No puede dejar el título vacío",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
                 }
-            }
         }
 
     }

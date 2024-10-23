@@ -2,7 +2,6 @@ package com.example.navigation.ui.screens.completedTasks
 
 import android.annotation.SuppressLint
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -40,7 +39,7 @@ class CompletedTasksFragment : Fragment() {
                 checkTask(idTask)
             },
             onTaskDetailClickListener = { idTask ->
-                launchActivityDetail(idTask)
+                launchFragmentDetail(idTask)
             }
         )
         binding.rvTasks.apply {
@@ -54,7 +53,7 @@ class CompletedTasksFragment : Fragment() {
     }
 
     @SuppressLint("NotifyDataSetChanged")
-    private fun updateUiState(){
+    private fun updateUiTaskListCompleted(){
         lifecycleScope.launch {
             taskViewModel.uiState.collect{ uiState ->
                 if(uiState.taskList.isNotEmpty()){
@@ -68,10 +67,10 @@ class CompletedTasksFragment : Fragment() {
     @SuppressLint("NotifyDataSetChanged")
     private fun checkTask(id: Int) {
         taskViewModel.taskList.find { it.id == id }!!.isChecked = false
-        updateUiState()
+        updateUiTaskListCompleted()
     }
 
-    private fun launchActivityDetail(idTask: Int) {
+    private fun launchFragmentDetail(idTask: Int) {
         taskViewModel.setSelectedTask(idTask)
         findNavController().navigate(R.id.action_secondFragment_to_thirdFragment)
     }
