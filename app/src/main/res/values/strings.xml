@@ -13,4 +13,5 @@
     <string name="back">Back</string>
     <string name="date_amp_time"><![CDATA[Date & time]]></string>
     <string name="insert_title_task">Insert Title Task</string>
+    <string name="trash_button">Trash Button</string>
 </resources>

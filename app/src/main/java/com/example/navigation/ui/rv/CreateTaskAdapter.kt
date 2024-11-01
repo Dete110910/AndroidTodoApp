@@ -1,19 +1,19 @@
-package com.example.navigation.ui.screens.createTasks.rv
+package com.example.navigation.ui.rv
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import android.util.Log
 import androidx.recyclerview.widget.RecyclerView
-import com.example.navigation.data.models.Task
+import com.example.navigation.data.entities.TaskEntity
 import com.example.navigation.databinding.TaskViewBinding
 
 class CreateTaskAdapter(
-    entryTaskList : List<Task>,
+    entryTaskList: List<TaskEntity>,
     private val onCheckClickListener: (id: Int) -> Unit,
+    private val onDeleteClickListener: (id: Int) -> Unit,
     private val onTaskDetailClickListener: (id: Int) -> Unit
 ) : RecyclerView.Adapter<CreateTaskViewHolder>() {
 
-    private var taskList : List<Task> = entryTaskList
+    private var taskList : List<TaskEntity> = entryTaskList
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CreateTaskViewHolder {
         val binding = TaskViewBinding.inflate(
@@ -24,6 +24,7 @@ class CreateTaskAdapter(
         return CreateTaskViewHolder(
             binding = binding,
             onCheckClickListener = onCheckClickListener,
+            onDeleteClickListener = onDeleteClickListener,
             onTaskDetailClickListener = onTaskDetailClickListener
         )
     }
@@ -34,7 +35,7 @@ class CreateTaskAdapter(
 
     override fun getItemCount(): Int = taskList.size
 
-    fun updateTaskList(taskList: List<Task>) {
+    fun updateTaskList(taskList: List<TaskEntity>) {
         this.taskList = taskList
     }
 }

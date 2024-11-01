@@ -1,54 +1,58 @@
 package com.example.navigation.data.viewModel
 
-import android.util.Log
-import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.navigation.data.models.Task
-import com.example.navigation.ui.screens.createTasks.uiState.TaskUiState
-import com.example.navigation.ui.screens.detailTasks.uiState.DetailTaskUiState
+import com.example.navigation.data.db.TaskDao
+import com.example.navigation.data.entities.TaskEntity
+import com.example.navigation.ui.uiState.TaskUiState
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class TaskViewModel : ViewModel() {
+@HiltViewModel
+class TaskViewModel @Inject constructor(
+    private val taskDao: TaskDao
+) : ViewModel() {
 
     private val _uiState = MutableStateFlow(TaskUiState())
     val uiState: StateFlow<TaskUiState> = _uiState.asStateFlow()
+    var taskList = mutableListOf<TaskEntity>()
 
-    private val _uiStateDetail = MutableStateFlow(DetailTaskUiState())
-    val uiStateDetail: StateFlow<DetailTaskUiState> = _uiStateDetail.asStateFlow()
+    init {
+        updateTaskList()
+    }
+    fun findTaskById(idTask: Int) = taskList.find { it.id == idTask }
 
-    private lateinit var selectedTask: Task
-
-    var taskList = mutableListOf(
-        Task(1, "T1", "DT1", false),
-        Task(2, "T2", "DT2", false),
-        Task(3, "T3", "DT3", false),
-    )
-
-    fun updateUiState() {
+    fun updateTaskList() {
         viewModelScope.launch {
-            val newUiState = _uiState.value.copy(
-                taskList = taskList
-            )
-            _uiState.value = newUiState
+            val tasks = taskDao.getAllTasks()
+            taskList = tasks.toMutableList()
+            _uiState.update { it.copy(taskList = tasks) }
         }
     }
 
-    fun setSelectedTask(idTask: Int) {
-        val task = taskList.find { it.id == idTask }
-        if (task != null)
-            this.selectedTask = task
-    }
-
-    fun getSelectedTask(): Task {
-        return this.selectedTask
-    }
-
     fun addTask(title: String) {
-        taskList.add(Task(taskList.size + 1, title, "", false))
-        updateUiState()
+        viewModelScope.launch {
+            taskDao.insertTask(TaskEntity(title = title, description = "", isChecked = false))
+            updateTaskList()
+        }
+    }
+
+    fun updateTask(task: TaskEntity) {
+        viewModelScope.launch {
+            taskDao.updateTask(task)
+            updateTaskList()
+        }
+    }
+
+    fun deleteTask(task: TaskEntity) {
+        viewModelScope.launch {
+            taskDao.deleteTask(task)
+            updateTaskList()
+        }
     }
 }

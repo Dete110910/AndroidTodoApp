@@ -15,7 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.navigation.R
 import com.example.navigation.data.viewModel.TaskViewModel
 import com.example.navigation.databinding.FragmentCreateTaskBinding
-import com.example.navigation.ui.screens.createTasks.rv.CreateTaskAdapter
+import com.example.navigation.ui.rv.CreateTaskAdapter
 import kotlinx.coroutines.launch
 
 class CreateTaskFragment : Fragment() {
@@ -37,6 +37,11 @@ class CreateTaskFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         updateUiTaskList()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        cleanField()
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -63,9 +68,23 @@ class CreateTaskFragment : Fragment() {
         }
     }
 
-    override fun onPause() {
-        super.onPause()
-        cleanField()
+    private fun initRv() {
+        rvTaskAdapter = CreateTaskAdapter(
+            taskViewModel.taskList,
+            onCheckClickListener = { idTask ->
+                checkTask(idTask)
+            },
+            onDeleteClickListener = { idTask ->
+                deleteTask(idTask)
+            },
+            onTaskDetailClickListener = { idTask ->
+                launchFragmentDetail(idTask)
+            }
+        )
+        binding.rvTasks.apply {
+            layoutManager = LinearLayoutManager(requireContext())
+            adapter = rvTaskAdapter
+        }
     }
 
     @SuppressLint("NotifyDataSetChanged")
@@ -80,31 +99,27 @@ class CreateTaskFragment : Fragment() {
         }
     }
 
-    private fun initRv() {
-        rvTaskAdapter = CreateTaskAdapter(
-            taskViewModel.taskList,
-            onCheckClickListener = { idTask ->
-                checkTask(idTask)
-            },
-            onTaskDetailClickListener = { idTask ->
-                launchFragmentDetail(idTask)
-            }
-        )
-        binding.rvTasks.apply {
-            layoutManager = LinearLayoutManager(requireContext())
-            adapter = rvTaskAdapter
+    private fun checkTask(id: Int) {
+        taskViewModel.taskList.find { it.id == id }?.let { task ->
+            task.isChecked = true
+            taskViewModel.updateTask(task)
+            updateUiTaskList()
         }
     }
 
-    private fun checkTask(id: Int) {
-        taskViewModel.taskList.find { it.id == id }!!.isChecked = true
-        taskViewModel.updateUiState()
-        updateUiTaskList()
+    private fun deleteTask(id: Int) {
+        taskViewModel.findTaskById(id)?.let {
+            taskViewModel.deleteTask(it)
+            updateUiTaskList()
+        }
     }
 
     private fun launchFragmentDetail(idTask: Int) {
-        taskViewModel.setSelectedTask(idTask)
-        findNavController().navigate(R.id.action_firstFragment_to_thirdFragment)
+        val actions = CreateTaskFragmentDirections.actionFirstFragmentToThirdFragment(
+            taskId = idTask,
+            taskTitle = ""
+        )
+        findNavController().navigate(actions)
     }
 
 

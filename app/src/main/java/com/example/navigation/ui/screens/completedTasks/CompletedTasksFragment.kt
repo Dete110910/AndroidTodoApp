@@ -10,10 +10,9 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.navigation.R
 import com.example.navigation.data.viewModel.TaskViewModel
 import com.example.navigation.databinding.FragmentCompletedTaskBinding
-import com.example.navigation.ui.screens.createTasks.rv.CreateTaskAdapter
+import com.example.navigation.ui.rv.CreateTaskAdapter
 import kotlinx.coroutines.launch
 
 
@@ -21,7 +20,7 @@ class CompletedTasksFragment : Fragment() {
 
     private lateinit var binding: FragmentCompletedTaskBinding
     private lateinit var rvTaskAdapter: CreateTaskAdapter
-    private val taskViewModel : TaskViewModel by activityViewModels()
+    private val taskViewModel: TaskViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -38,6 +37,9 @@ class CompletedTasksFragment : Fragment() {
             onCheckClickListener = { idTask ->
                 checkTask(idTask)
             },
+            onDeleteClickListener = { idTask ->
+                deleteTask(idTask)
+            },
             onTaskDetailClickListener = { idTask ->
                 launchFragmentDetail(idTask)
             }
@@ -47,16 +49,16 @@ class CompletedTasksFragment : Fragment() {
             adapter = rvTaskAdapter
         }
 
-        binding.btnBack.setOnClickListener{
+        binding.btnBack.setOnClickListener {
             findNavController().popBackStack()
         }
     }
 
     @SuppressLint("NotifyDataSetChanged")
-    private fun updateUiTaskListCompleted(){
+    private fun updateUiTaskListCompleted() {
         lifecycleScope.launch {
-            taskViewModel.uiState.collect{ uiState ->
-                if(uiState.taskList.isNotEmpty()){
+            taskViewModel.uiState.collect { uiState ->
+                if (uiState.taskList.isNotEmpty()) {
                     rvTaskAdapter.updateTaskList(uiState.getCompleted())
                     rvTaskAdapter.notifyDataSetChanged()
                 }
@@ -66,12 +68,31 @@ class CompletedTasksFragment : Fragment() {
 
     @SuppressLint("NotifyDataSetChanged")
     private fun checkTask(id: Int) {
-        taskViewModel.taskList.find { it.id == id }!!.isChecked = false
+        val task = taskViewModel.taskList.find { it.id == id }
+        if (task != null) {
+            task.isChecked = false
+            taskViewModel.updateTask(task)
+        }
         updateUiTaskListCompleted()
     }
 
+    private fun deleteTask(id: Int) {
+        taskViewModel.findTaskById(id)?.let {
+            taskViewModel.deleteTask(it)
+            updateUiTaskListCompleted()
+        }
+    }
+
     private fun launchFragmentDetail(idTask: Int) {
-        taskViewModel.setSelectedTask(idTask)
-        findNavController().navigate(R.id.action_secondFragment_to_thirdFragment)
+        val actions = CompletedTasksFragmentDirections.actionSecondFragmentToThirdFragment(
+            taskId = idTask,
+            taskTitle = ""
+        )
+        findNavController().navigate(actions)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        updateUiTaskListCompleted()
     }
 }
